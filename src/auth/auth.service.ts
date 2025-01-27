@@ -1,12 +1,15 @@
 import { UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { AuthDto } from "src/users/dto/authUser.dto";
+import { UserEntity } from "src/users/entities/user.entity";
 import { UsersService } from "src/users/users.service";
+import { Repository } from "typeorm";
 
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
+        private readonly usersRepository: Repository<UserEntity>,
     ) {}
 
     async register(dto: AuthDto) {
@@ -44,8 +47,10 @@ export class AuthService {
         return { accessToken: token, email: user.email };
     }
 
-    async getProfile(token: string) {
-        const user = await this.usersService.findByEmail(req.user.email);
+    async getProfile(userId: string) {
+        const user = await this.usersRepository.findOne({
+            where: { id: userId },
+        });
 
         if (!user) {
             throw new UnauthorizedException("User not found");
