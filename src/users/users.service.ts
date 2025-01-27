@@ -14,6 +14,7 @@ export class UsersService {
     async createUser(email: string, password: string): Promise<UserEntity> {
         const passwordHash = await bcrypt.hash(password, 10);
         const user = this.userRepository.create({ email, passwordHash });
+
         return this.userRepository.save(user);
     }
 
