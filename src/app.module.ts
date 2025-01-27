@@ -1,6 +1,9 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserEntity } from "./users/entities/user.entity";
+import { AuthModule } from "./auth/auth.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
     imports: [
@@ -19,6 +22,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
                 synchronize: true,
                 autoLoadEntities: true,
                 entities: [
+                    UserEntity,
                     /* CategoryEntity,
                     ProductEntity,
                     ProductEntity,
@@ -34,6 +38,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
             }),
             inject: [ConfigService],
         }),
+        AuthModule,
+        UsersModule,
         /* CategoriesModule,
         ProductsModule,
         BrandsModule,
