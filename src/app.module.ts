@@ -5,6 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { UserEntity } from "./users/entites/user.entity";
 import { NotesModule } from "./notes/notes.module";
+import { TagsModule } from "./tags/tags.module";
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import { NotesModule } from "./notes/notes.module";
         AuthModule,
         UsersModule,
         NotesModule,
+        TagsModule,
     ],
     controllers: [],
     providers: [],
