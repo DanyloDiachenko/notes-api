@@ -1,31 +1,54 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
-import * as bcrypt from "bcrypt";
-import { UserEntity } from "./entities/user.entity";
+import { UserEntity } from "./entites/user.entity";
+import { JwtService } from "@nestjs/jwt";
+import { CreateUserDto } from "./dto/create-user.dto";
+import * as argon2 from "argon2";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
+        private readonly usersRepository: Repository<UserEntity>,
+        private readonly jwtService: JwtService,
     ) {}
 
-    async createUser(email: string, password: string): Promise<UserEntity> {
-        const passwordHash = await bcrypt.hash(password, 10);
-        const user = this.userRepository.create({ email, passwordHash });
+    async create(createUserDto: CreateUserDto) {
+        const existingUser = await this.usersRepository.findOne({
+            where: {
+                email: createUserDto.email,
+            },
+        });
 
-        return this.userRepository.save(user);
+        if (existingUser) {
+            throw new BadRequestException("This email already exists");
+        }
+
+        const createdUser = await this.usersRepository.save({
+            email: createUserDto.email,
+            passwordHash: createUserDto.password
+                ? await argon2.hash(createUserDto.password)
+                : "",
+        });
+
+        const token = this.jwtService.sign({
+            email: createUserDto.email,
+        });
+
+        const { passwordHash, ...createdUserWithoutPassword } = createdUser;
+
+        return {
+            ...createdUserWithoutPassword,
+            token,
+        };
     }
 
-    async findByEmail(email: string): Promise<UserEntity | null> {
-        return this.userRepository.findOne({ where: { email } });
-    }
-
-    async validatePassword(
-        password: string,
-        passwordHash: string,
-    ): Promise<boolean> {
-        return bcrypt.compare(password, passwordHash);
+    async findOne(email: string) {
+        return await this.usersRepository.findOne({
+            where: {
+                email,
+            },
+        });
     }
 }

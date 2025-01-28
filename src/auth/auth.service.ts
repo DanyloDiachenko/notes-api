@@ -1,61 +1,81 @@
-import { UnauthorizedException } from "@nestjs/common";
+import {
+    BadRequestException,
+    Injectable,
+    UnauthorizedException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { AuthDto } from "src/users/dto/authUser.dto";
-import { UserEntity } from "src/users/entities/user.entity";
 import { UsersService } from "src/users/users.service";
-import { Repository } from "typeorm";
+import * as argon2 from "argon2";
+import { LoginDto } from "./dto/login.dto";
+import { ConfigService } from "@nestjs/config";
 
+@Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
-        private readonly usersRepository: Repository<UserEntity>,
+        private readonly configService: ConfigService,
     ) {}
 
-    async register(dto: AuthDto) {
-        const existingUser = await this.usersService.findByEmail(dto.email);
-        if (existingUser) {
-            throw new UnauthorizedException("Email is already taken");
+    async validateUser(email: string, password: string) {
+        const findedUser = await this.usersService.findOne(email);
+
+        if (!findedUser) {
+            throw new BadRequestException("User not found");
         }
 
-        const user = await this.usersService.createUser(
-            dto.email,
-            dto.password,
+        if (findedUser.passwordHash == null) {
+            return findedUser;
+        }
+
+        const isPasswordsMatched = await argon2.verify(
+            findedUser.passwordHash,
+            password,
         );
 
-        const accessToken = await this.login(dto);
-
-        return { email: user.email, accessToken: accessToken };
-    }
-
-    async login(dto: AuthDto) {
-        const user = await this.usersService.findByEmail(dto.email);
-        if (!user) {
-            throw new UnauthorizedException("Invalid email or password");
+        if (findedUser && isPasswordsMatched) {
+            return findedUser;
         }
 
-        const isPasswordValid = await this.usersService.validatePassword(
-            dto.password,
-            user.passwordHash,
-        );
-        if (!isPasswordValid) {
-            throw new UnauthorizedException("Invalid email or password");
-        }
-
-        const token = this.jwtService.sign({ id: user.id, email: user.email });
-
-        return { accessToken: token, email: user.email };
+        throw new UnauthorizedException("User or password are incorrect");
     }
 
-    async getProfile(userId: string) {
-        const user = await this.usersRepository.findOne({
-            where: { id: userId },
-        });
+    async login(loginDto: LoginDto) {
+        const { email, password } = loginDto;
 
-        if (!user) {
+        const findedUser = await this.usersService.findOne(email);
+        if (!findedUser) {
             throw new UnauthorizedException("User not found");
         }
 
-        return { id: user.id, email: user.email };
+        if (findedUser.passwordHash == null) {
+            throw new BadRequestException("Please, sign in with Google");
+        }
+
+        const isPasswordsMatched = await argon2.verify(
+            findedUser.passwordHash,
+            password,
+        );
+        if (!isPasswordsMatched) {
+            throw new UnauthorizedException("Password is incorrect");
+        }
+
+        return {
+            id: findedUser.id,
+            email: findedUser.email,
+            token: this.jwtService.sign({ id: findedUser.id, email }),
+        };
+    }
+
+    async getProfile(userEmail: string) {
+        const user = await this.usersService.findOne(userEmail);
+
+        if (!user) {
+            throw new BadRequestException("User not found");
+        }
+
+        const { passwordHash, ...userWithoutPassword } = user;
+
+        return { ...userWithoutPassword };
     }
 }
