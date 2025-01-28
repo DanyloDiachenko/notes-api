@@ -1,5 +1,6 @@
 import { IsArray, IsString, IsUUID } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { TagDto } from "src/tags/dto/tag.dto";
 
 export class NoteDto {
     @ApiProperty({ description: "Id of the note" })
@@ -8,12 +9,12 @@ export class NoteDto {
     @ApiProperty({ description: "Title of the note" })
     title!: string;
 
-    /* @ApiProperty({
+    @ApiProperty({
         description: "Array of tags to associated with the note",
         type: [TagDto],
     })
     tags!: TagDto[];
- */
+
     @ApiProperty({ description: "Content of the note" })
     content!: string;
 
