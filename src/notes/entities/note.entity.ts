@@ -1,7 +1,15 @@
-import { Column, OneToMany, UpdateDateColumn } from "typeorm";
+import { TagEntity } from "src/tags/entities/tag.entity";
+import {
+    Column,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from "typeorm";
 
+@Entity("notes")
 export class NoteEntity {
-    @Column()
+    @PrimaryGeneratedColumn("uuid")
     id!: string;
 
     @Column()
