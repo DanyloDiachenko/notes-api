@@ -12,11 +12,19 @@ export class NotesService {
         private readonly noteRepository: Repository<NoteEntity>,
     ) {}
 
-    async getAll(userId: string, tag?: string) {
+    async getAll(
+        userId: string,
+        tag?: string,
+        search?: string,
+        isArchived?: boolean,
+    ) {
         return await this.noteRepository.find({
-            /* where: {
-                userId,
-            }, */
+            where: {
+                user: { id: userId },
+                ...(tag && { tags: { title: tag } }),
+                ...(search && { title: search }),
+                isArchived,
+            },
             relations: ["tags"],
         });
     }
@@ -62,6 +70,9 @@ export class NotesService {
     }
 
     async create(createNoteDto: CreateNoteDto) {
-        return await this.noteRepository.save(createNoteDto);
+        return await this.noteRepository.save({
+            ...createNoteDto,
+            isArchived: false,
+        });
     }
 }

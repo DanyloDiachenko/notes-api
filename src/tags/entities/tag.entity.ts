@@ -1,5 +1,12 @@
 import { NoteEntity } from "src/notes/entities/note.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { UserEntity } from "src/users/entites/user.entity";
+import {
+    Column,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+} from "typeorm";
 
 @Entity("notes")
 export class TagEntity {
@@ -11,6 +18,9 @@ export class TagEntity {
 
     @Column()
     slug!: string;
+
+    @ManyToOne(() => UserEntity, (user) => user.tags)
+    user!: UserEntity;
 
     @ManyToOne(() => NoteEntity, (note) => note.tags)
     note!: NoteEntity;

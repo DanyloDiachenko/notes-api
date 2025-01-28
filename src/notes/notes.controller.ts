@@ -23,8 +23,18 @@ export class NotesController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Get()
-    async getAll(@Req() req: any, @Query() tag?: string) {
-        return await this.notesService.getAll(req.user.id, tag);
+    async getAll(
+        @Req() req: any,
+        @Query() tag?: string,
+        @Query() search?: string,
+        @Query() isArchived?: boolean,
+    ) {
+        return await this.notesService.getAll(
+            req.user.id,
+            tag,
+            search,
+            isArchived,
+        );
     }
 
     @UseGuards(JwtAuthGuard)

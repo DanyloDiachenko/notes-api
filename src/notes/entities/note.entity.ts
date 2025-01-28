@@ -1,7 +1,9 @@
 import { TagEntity } from "src/tags/entities/tag.entity";
+import { UserEntity } from "src/users/entites/user.entity";
 import {
     Column,
     Entity,
+    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
@@ -23,4 +25,10 @@ export class NoteEntity {
 
     @OneToMany(() => TagEntity, (tag) => tag.note)
     tags!: TagEntity[];
+
+    @ManyToOne(() => UserEntity, (user) => user.notes)
+    user!: UserEntity;
+
+    @Column()
+    isArchived!: boolean;
 }
