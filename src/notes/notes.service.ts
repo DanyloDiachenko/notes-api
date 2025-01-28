@@ -70,9 +70,11 @@ export class NotesService {
     }
 
     async create(createNoteDto: CreateNoteDto) {
-        return await this.noteRepository.save({
+        await this.noteRepository.save({
             ...createNoteDto,
             isArchived: false,
         });
+
+        return createNoteDto;
     }
 }
