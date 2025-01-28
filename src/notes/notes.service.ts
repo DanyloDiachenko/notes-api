@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { NoteEntity } from "./entities/note.entity";
 import { Repository } from "typeorm";
 import { UpdateNoteDto } from "./dto/update-note.dto";
+import { CreateNoteDto } from "./dto/create-note.dto";
 
 @Injectable()
 export class NotesService {
@@ -58,5 +59,9 @@ export class NotesService {
         }
 
         return await this.noteRepository.delete(noteId);
+    }
+
+    async create(createNoteDto: CreateNoteDto) {
+        return await this.noteRepository.save(createNoteDto);
     }
 }
