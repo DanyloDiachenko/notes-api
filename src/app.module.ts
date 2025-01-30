@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
-import { UserEntity } from "./users/entites/user.entity";
 import { NotesModule } from "./notes/notes.module";
 import { TagsModule } from "./tags/tags.module";
 
@@ -23,7 +22,7 @@ import { TagsModule } from "./tags/tags.module";
                 database: configService.get("DB_NAME"),
                 synchronize: true,
                 autoLoadEntities: true,
-                entities: [UserEntity],
+                entities: [],
             }),
             inject: [ConfigService],
         }),
