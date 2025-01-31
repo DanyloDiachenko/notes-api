@@ -51,9 +51,9 @@ export class NotesController {
     @Get()
     async getAll(
         @Req() req: any,
-        @Query() tag?: string,
-        @Query() search?: string,
-        @Query() isArchived?: boolean,
+        @Query("tag") tag?: string,
+        @Query("search") search?: string,
+        @Query("isArchived") isArchived?: boolean,
     ) {
         return await this.notesService.getAll(
             req.user.id,
@@ -72,7 +72,7 @@ export class NotesController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Get(":id")
-    async getOne(@Param() noteId: string) {
+    async getOne(@Param("id") noteId: string) {
         return await this.notesService.getOne(noteId);
     }
 
@@ -100,7 +100,7 @@ export class NotesController {
     @Put(":id")
     async update(
         @Body() updateNoteDto: UpdateNoteDto,
-        @Param() noteId: string,
+        @Param("id") noteId: string,
     ) {
         return await this.notesService.update(updateNoteDto, noteId);
     }
@@ -114,7 +114,7 @@ export class NotesController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Delete(":id")
-    async delete(@Param() noteId: string) {
+    async delete(@Param("id") noteId: string) {
         return await this.notesService.delete(noteId);
     }
 }

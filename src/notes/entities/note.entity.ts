@@ -12,23 +12,23 @@ import {
 @Entity("notes")
 export class NoteEntity {
     @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    id: string;
 
     @Column()
-    title!: string;
+    title: string;
 
     @Column()
-    content!: string;
+    content: string;
 
     @UpdateDateColumn()
-    updatedAt!: Date;
+    updatedAt: Date;
 
     @OneToMany(() => TagEntity, (tag) => tag.note)
-    tags!: TagEntity[];
+    tags: TagEntity[];
 
     @ManyToOne(() => UserEntity, (user) => user.notes)
-    user!: UserEntity;
+    user: UserEntity;
 
     @Column()
-    isArchived!: boolean;
+    isArchived: boolean;
 }

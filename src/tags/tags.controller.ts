@@ -53,7 +53,7 @@ export class TagsController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Get(":id")
-    async getOne(@Param() tagId: string) {
+    async getOne(@Param("id") tagId: string) {
         return await this.tagsService.getOne(tagId);
     }
 
@@ -73,7 +73,10 @@ export class TagsController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Put(":id")
-    async update(@Body() updateTagDto: UpdateTagDto, @Param() tagId: string) {
+    async update(
+        @Body() updateTagDto: UpdateTagDto,
+        @Param("id") tagId: string,
+    ) {
         return await this.tagsService.update(updateTagDto, tagId);
     }
 
@@ -88,7 +91,7 @@ export class TagsController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Delete(":id")
-    async delete(@Param() tagId: string) {
+    async delete(@Param("id") tagId: string) {
         return await this.tagsService.delete(tagId);
     }
 

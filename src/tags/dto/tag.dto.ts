@@ -2,11 +2,11 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class TagDto {
     @ApiProperty({ description: "Id of the tag" })
-    id!: string;
+    id: string;
 
     @ApiProperty({ description: "Title of the tag" })
-    title!: string;
+    title: string;
 
     @ApiProperty({ description: "Slug of the tag" })
-    slug!: string;
+    slug: string;
 }

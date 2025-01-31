@@ -4,23 +4,23 @@ import { TagDto } from "src/tags/dto/tag.dto";
 
 export class NoteDto {
     @ApiProperty({ description: "Id of the note" })
-    id!: string;
+    id: string;
 
     @ApiProperty({ description: "Title of the note" })
-    title!: string;
+    title: string;
 
     @ApiProperty({
         description: "Array of tags to associated with the note",
         type: [TagDto],
     })
-    tags!: TagDto[];
+    tags: TagDto[];
 
     @ApiProperty({ description: "Content of the note" })
-    content!: string;
+    content: string;
 
     @ApiProperty({ description: "Whether the note is archived or not" })
-    isArchived!: boolean;
+    isArchived: boolean;
 
     @ApiProperty({ description: "Date when the note was last updated" })
-    updatedAt!: Date;
+    updatedAt: Date;
 }

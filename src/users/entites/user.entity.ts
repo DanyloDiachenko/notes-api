@@ -5,17 +5,17 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 @Entity("users")
 export class UserEntity {
     @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    id: string;
 
     @Column()
-    email!: string;
+    email: string;
 
-    @Column({ nullable: true })
-    passwordHash?: string;
+    @Column()
+    passwordHash: string;
 
     @OneToMany(() => NoteEntity, (note) => note.user)
-    notes!: NoteEntity[];
+    notes: NoteEntity[];
 
     @OneToMany(() => TagEntity, (tag) => tag.user)
-    tags!: TagEntity[];
+    tags: TagEntity[];
 }

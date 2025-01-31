@@ -18,15 +18,26 @@ export class NotesService {
         search?: string,
         isArchived?: boolean,
     ) {
-        return await this.noteRepository.find({
-            where: {
-                user: { id: userId },
-                ...(tag && { tags: { title: tag } }),
-                ...(search && { title: search }),
-                isArchived,
-            },
-            relations: ["tags"],
-        });
+        const query = this.noteRepository
+            .createQueryBuilder("note")
+            .leftJoinAndSelect("note.tags", "tags")
+            .where("note.userId = :userId", { userId });
+
+        if (tag) {
+            query.andWhere("tags.title = :tag", { tag });
+        }
+
+        if (search) {
+            query.andWhere("note.title LIKE :search", {
+                search: `%${search}%`,
+            });
+        }
+
+        if (isArchived !== undefined) {
+            query.andWhere("note.isArchived = :isArchived", { isArchived });
+        }
+
+        return await query.getMany();
     }
 
     async getOne(noteId: string) {

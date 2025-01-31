@@ -6,22 +6,24 @@ import {
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
+    Unique,
 } from "typeorm";
 
-@Entity("notes")
+@Unique(["title"])
+@Entity("tags")
 export class TagEntity {
     @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    id: string;
 
     @Column()
-    title!: string;
+    title: string;
 
     @Column()
-    slug!: string;
+    slug: string;
 
     @ManyToOne(() => UserEntity, (user) => user.tags)
-    user!: UserEntity;
+    user: UserEntity;
 
-    @ManyToOne(() => NoteEntity, (note) => note.tags)
-    note!: NoteEntity;
+    @ManyToOne(() => NoteEntity, (note) => note.tags, { nullable: true })
+    note?: NoteEntity;
 }
