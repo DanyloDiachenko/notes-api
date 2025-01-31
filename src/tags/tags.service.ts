@@ -1,10 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TagEntity } from "./entities/tag.entity";
 import { Repository } from "typeorm";
 import { CreateTagDto } from "./dto/create-tag.dto";
 import { UpdateTagDto } from "./dto/update-tag.dto";
 import { NoteEntity } from "src/notes/entities/note.entity";
+import { UserEntity } from "src/users/entites/user.entity";
 
 @Injectable()
 export class TagsService {
@@ -13,6 +18,8 @@ export class TagsService {
         private readonly tagsRepository: Repository<TagEntity>,
         @InjectRepository(NoteEntity)
         private readonly notesRepository: Repository<NoteEntity>,
+        @InjectRepository(UserEntity)
+        private readonly usersRepository: Repository<UserEntity>,
     ) {}
 
     async getAll() {
@@ -70,17 +77,35 @@ export class TagsService {
         return await this.tagsRepository.remove(tagToDelete);
     }
 
-    async create(createTagDto: CreateTagDto) {
-        const tag = this.tagsRepository.find({
-            where: { title: createTagDto.title },
+    async create(createTagDto: CreateTagDto, userId: string) {
+        const existingTag = await this.tagsRepository.findOne({
+            where: { title: createTagDto.title, user: { id: userId } },
         });
 
-        if (tag) {
+        if (existingTag) {
             throw new BadRequestException("Tag with this title already exists");
         }
 
-        await this.tagsRepository.save(createTagDto);
+        const user = await this.usersRepository.findOne({
+            where: { id: userId },
+        });
 
-        return createTagDto;
+        if (!user) {
+            throw new NotFoundException("User not found");
+        }
+
+        const tag = this.tagsRepository.create({
+            title: createTagDto.title,
+            slug: createTagDto.slug,
+            user,
+        });
+
+        await this.tagsRepository.save(tag);
+
+        return {
+            id: tag.id,
+            title: tag.title,
+            slug: tag.slug,
+        };
     }
 }

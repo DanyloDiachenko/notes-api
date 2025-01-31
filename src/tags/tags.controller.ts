@@ -6,6 +6,7 @@ import {
     Param,
     Post,
     Put,
+    Req,
     UseGuards,
 } from "@nestjs/common";
 import {
@@ -106,7 +107,8 @@ export class TagsController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Post()
-    async create(@Body() createTagDto: CreateTagDto) {
-        return await this.tagsService.create(createTagDto);
+    async create(@Body() createTagDto: CreateTagDto, @Req() req: any) {
+
+        return await this.tagsService.create(createTagDto, req.user.id);
     }
 }
