@@ -1,15 +1,18 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { NoteEntity } from "./entities/note.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { UpdateNoteDto } from "./dto/update-note.dto";
 import { CreateNoteDto } from "./dto/create-note.dto";
+import { TagEntity } from "src/tags/entities/tag.entity";
 
 @Injectable()
 export class NotesService {
     constructor(
         @InjectRepository(NoteEntity)
         private readonly noteRepository: Repository<NoteEntity>,
+        @InjectRepository(TagEntity)
+        private readonly tagsRepository: Repository<TagEntity>,
     ) {}
 
     async getAll(
@@ -56,15 +59,26 @@ export class NotesService {
     async update(updateNoteDto: UpdateNoteDto, noteId: string) {
         const previousNote = await this.noteRepository.findOne({
             where: { id: noteId },
+            relations: ["tags"],
         });
 
         if (!previousNote) {
             throw new NotFoundException("Note not found");
         }
 
-        return await this.noteRepository.save({
+        const tags = await this.tagsRepository.findBy({
+            id: In(updateNoteDto.tagIds),
+        });
+
+        await this.noteRepository.save({
             ...previousNote,
             ...updateNoteDto,
+            tags,
+        });
+
+        return await this.noteRepository.findOne({
+            where: { id: noteId },
+            relations: ["tags"],
         });
     }
 
