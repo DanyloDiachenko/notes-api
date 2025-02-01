@@ -84,8 +84,8 @@ export class NotesController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @Post()
-    async create(@Body() createNoteDto: CreateNoteDto) {
-        return await this.notesService.create(createNoteDto);
+    async create(@Body() createNoteDto: CreateNoteDto, @Req() req: any) {
+        return await this.notesService.create(createNoteDto, req.user.id);
     }
 
     @ApiOperation({ summary: "Update note" })

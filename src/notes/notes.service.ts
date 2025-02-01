@@ -24,7 +24,7 @@ export class NotesService {
             .where("note.userId = :userId", { userId });
 
         if (tag) {
-            query.andWhere("tags.title = :tag", { tag });
+            query.andWhere("tags.slug = :tag", { tag });
         }
 
         if (search) {
@@ -80,12 +80,12 @@ export class NotesService {
         return await this.noteRepository.delete(noteId);
     }
 
-    async create(createNoteDto: CreateNoteDto) {
-        await this.noteRepository.save({
+    async create(createNoteDto: CreateNoteDto, userId: string) {
+        return await this.noteRepository.save({
             ...createNoteDto,
             isArchived: false,
+            user: { id: userId },
+            tags: createNoteDto.tagIds.map((tagId) => ({ id: tagId })),
         });
-
-        return createNoteDto;
     }
 }
