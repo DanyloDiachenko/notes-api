@@ -3,6 +3,7 @@ import { UserEntity } from "src/users/entites/user.entity";
 import {
     Column,
     Entity,
+    ManyToMany,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -23,7 +24,7 @@ export class NoteEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @OneToMany(() => TagEntity, (tag) => tag.note)
+    @ManyToMany(() => TagEntity, (tag) => tag.notes)
     tags: TagEntity[];
 
     @ManyToOne(() => UserEntity, (user) => user.notes)

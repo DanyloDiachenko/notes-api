@@ -3,6 +3,8 @@ import { UserEntity } from "src/users/entites/user.entity";
 import {
     Column,
     Entity,
+    JoinTable,
+    ManyToMany,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -24,6 +26,11 @@ export class TagEntity {
     @ManyToOne(() => UserEntity, (user) => user.tags)
     user: UserEntity;
 
-    @ManyToOne(() => NoteEntity, (note) => note.tags, { nullable: true })
-    note?: NoteEntity;
+    @ManyToMany(() => NoteEntity, (note) => note.tags)
+    @JoinTable({
+        name: "note_tags",
+        joinColumn: { name: "tag_id", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "note_id", referencedColumnName: "id" },
+    })
+    notes: NoteEntity[];
 }

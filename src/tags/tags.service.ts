@@ -60,18 +60,18 @@ export class TagsService {
     async delete(tagId: string) {
         const tagToDelete = await this.tagsRepository.findOne({
             where: { id: tagId },
-            relations: ["note"],
+            relations: ["notes", "notes.tags"],
         });
 
         if (!tagToDelete) {
             throw new NotFoundException("Tag not found");
         }
 
-        if (tagToDelete.note) {
-            tagToDelete.note.tags = tagToDelete.note.tags.filter(
-                (tag) => tag.id !== tagId,
-            );
-            await this.notesRepository.save(tagToDelete.note);
+        if (tagToDelete.notes.length > 0) {
+            for (const note of tagToDelete.notes) {
+                note.tags = note.tags.filter((tag) => tag.id !== tagId);
+                await this.notesRepository.save(note);
+            }
         }
 
         return await this.tagsRepository.remove(tagToDelete);

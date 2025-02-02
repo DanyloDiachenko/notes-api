@@ -27,7 +27,17 @@ export class NotesService {
             .where("note.userId = :userId", { userId });
 
         if (tag) {
-            query.andWhere("tags.slug = :tag", { tag });
+            query.andWhere((qb) => {
+                const subQuery = qb
+                    .subQuery()
+                    .select("n.id")
+                    .from(NoteEntity, "n") // Используем сущность, а не строку
+                    .leftJoin("n.tags", "t")
+                    .where("t.slug = :tag", { tag })
+                    .getQuery();
+
+                return `note.id IN ${subQuery}`;
+            });
         }
 
         if (search) {
@@ -66,9 +76,13 @@ export class NotesService {
             throw new NotFoundException("Note not found");
         }
 
-        const tags = await this.tagsRepository.findBy({
-            id: In(updateNoteDto.tagIds),
-        });
+        let tags = previousNote.tags;
+
+        if (updateNoteDto.tagIds && updateNoteDto.tagIds.length > 0) {
+            tags = await this.tagsRepository.findBy({
+                id: In(updateNoteDto.tagIds),
+            });
+        }
 
         await this.noteRepository.save({
             ...previousNote,
@@ -85,13 +99,19 @@ export class NotesService {
     async delete(noteId: string) {
         const note = await this.noteRepository.findOne({
             where: { id: noteId },
+            relations: ["tags"],
         });
 
         if (!note) {
             throw new NotFoundException("Note not found");
         }
 
-        return await this.noteRepository.delete(noteId);
+        note.tags = [];
+        await this.noteRepository.save(note);
+
+        await this.noteRepository.delete(noteId);
+
+        return { success: true };
     }
 
     async create(createNoteDto: CreateNoteDto, userId: string) {
